@@ -21,15 +21,15 @@ export function oql(query: Query[] | Query, target: {}): {} {
 }
 
 function processQuery(query: Query, target: {}): void {
-  const [combinedCommand, delta] = query;
-  const [command, path] = combinedCommand.split(' ');
-  
-  if (!['set', 'add'].includes(command)) {
-    throw Error('Invalid command. Command must be "set" or "add"');
+  const [command, data] = query;
+  const [method, path] = command.split(' ');
+
+  if (!['set', 'add'].includes(method)) {
+    throw Error('Invalid method. Method must be "set" or "add"');
   }
 
   let propsNames = path.split('.');
-  let currentObject: { [index: string]: any } = target; // currenttObject is always copy of source
+  let currentObject: { [index: string]: any } = target; // currentObject is always copy of source
 
   propsNames.forEach((prop, index) => {
     if (index === propsNames.length - 1) {
@@ -42,11 +42,11 @@ function processQuery(query: Query, target: {}): void {
             (el: { id: string }) => id in el && el.id === value,
           );
           if (~foundIndex) {
-            if (command === 'set') {
-              currentObject[foundIndex] = delta;
+            if (method === 'set') {
+              currentObject[foundIndex] = data;
             } else {
               // add!!!!!!!!!!!!!!!!!!!
-              // addDelta(target, index, delta);
+              // addDelta(target, index, data);
             }
           } else {
             throw Error(`Prop or value ${prop} hasn't been found`);
@@ -57,15 +57,15 @@ function processQuery(query: Query, target: {}): void {
       } else {
         if (isArray(currentObject) && parseInt(prop) < 0) {
           // Negative index of array
-          if (command === 'set') {
-            currentObject[currentObject.length + parseInt(prop)] = delta;
+          if (method === 'set') {
+            currentObject[currentObject.length + parseInt(prop)] = data;
           } else {
             // add!!!!!!!!!!!!!!!!!!!
           }
         } else {
           // Ordinary object
-          if (command === 'set') {
-            currentObject[prop] = delta;
+          if (method === 'set') {
+            currentObject[prop] = data;
           } else {
             // add!!!!!!!!!!!!!!!!!!!!!!!
           }
