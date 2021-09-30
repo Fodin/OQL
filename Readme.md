@@ -6,13 +6,22 @@ OQL is small library without dependencies that applies specified changes to nest
 ### Main concepts
 OQL recieves two params: Single query or array of queries as first parameter and source object which will be used for new object as second one.
 
-`result = oql(["set first", { second: 1}], { first: 0});`
+```javascript
+result = oql(["set first", { second: 1}], { first: 0});
+```
 
 `result` will be `{first: { second: 1}}`
 
 or
 
-`result = oql([["set first", { second: 1}], ["set first.second"], 2], { first: 0});`
+```javascript
+result = oql(
+  [
+    ["set first", { second: 1}],
+    ["set first.second", 2]
+  ],
+  { first: 0});
+```
 
 `result` will be `{first: { second: 2}}`
 
@@ -47,16 +56,22 @@ These approaches of choosing properties and elements can be combined to access a
 **Add** - merge data in the point chosen by `path` with new data.
 
 ### Install
-`npm install -S oql-lib`
+```bash
+npm install -S oql-lib
+```
 
 ### Usage
-`import { oql } from 'oql-lib';`
+```javascript
+import { oql } from 'oql-lib';
+```
 
 #### Set property of object
 
-`result = oql(["set first.second", 2], { first: { second: 0}})`
+```javascript
+result = oql(["set first.second", 2], { first: { second: 0}})
+```
 
-`result` will be { first: { second: 2}}
+`result` will be `{ first: { second: 2}}`
 
 ### History of changes
 
