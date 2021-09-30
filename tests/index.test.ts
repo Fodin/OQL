@@ -88,11 +88,15 @@ describe('Add tests', () => {
   });
 
   test('Test add primitive by name', () => {
-    expect(oql(['add first.id=abc', 1], { first: [{ id: 'abc' }, { id: 'bcd' }] })).toThrowError();
+    expect(() => {
+      oql(['add first.id=abc', 1], { first: [{ id: 'abc' }, { id: 'bcd' }] });
+    }).toThrowError('You cannot merge array or primitive to object');
   });
 
   test('Test add primitive to array of primitives', () => {
-    expect(oql(['add first.id=abc', 1], { first: [1, 2] })).toThrowError();
+    expect(() => {
+      oql(['add first.id=abc', 1], { first: [1, 2] });
+    }).toThrowError("Prop or value id=abc hasn't been found");
   });
 
   test('Test add property by name 1', () => {

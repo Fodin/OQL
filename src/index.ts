@@ -39,14 +39,13 @@ function processQuery(query: Query, target: {}): void {
         if (isArray(currentObject)) {
           const [id, value] = prop.split('=');
           const foundIndex = currentObject.findIndex(
-            (el: { id: string }) => id in el && el.id === value,
+            (el: { id: string }) => isObject(el) && id in el && el.id === value,
           );
           if (~foundIndex) {
             if (method === 'set') {
               currentObject[foundIndex] = data;
             } else {
-              // add!!!!!!!!!!!!!!!!!!!
-              // addDelta(target, index, data);
+              addDelta(currentObject, foundIndex, data);
             }
           } else {
             throw Error(`Prop or value ${prop} hasn't been found`);
@@ -60,14 +59,14 @@ function processQuery(query: Query, target: {}): void {
           if (method === 'set') {
             currentObject[currentObject.length + parseInt(prop)] = data;
           } else {
-            // add!!!!!!!!!!!!!!!!!!!
+            addDelta(currentObject, currentObject.length + parseInt(prop), data);
           }
         } else {
           // Ordinary object
           if (method === 'set') {
             currentObject[prop] = data;
           } else {
-            // add!!!!!!!!!!!!!!!!!!!!!!!
+            addDelta(currentObject, prop, data);
           }
         }
       }
@@ -77,7 +76,7 @@ function processQuery(query: Query, target: {}): void {
         if (isArray(currentObject)) {
           const [id, value] = prop.split('=');
           const foundIndex = currentObject.findIndex(
-            (el: { id: string }) => id in el && el.id === value,
+            (el: { id: string }) => isObject(el) && id in el && el.id === value,
           );
           if (~foundIndex) {
             currentObject = setDelta(currentObject, foundIndex);
@@ -102,6 +101,20 @@ function processQuery(query: Query, target: {}): void {
 function setDelta(target: { [index: string]: any }, index: string): any {
   target[index] = isObject(target[index]) ? { ...target[index] } : [...target[index]];
   return target[index];
+}
+
+function addDelta(target: { [index: string]: any }, index: string, data: any): any {
+  if (isObject(target[index])) {
+    if (isObject(data)) {
+      target[index] = { ...target[index], ...data };
+    } else {
+      throw Error('You cannot merge array or primitive to object');
+    }
+  } else if (isArray(target[index])) {
+    target[index] = [...target[index]].concat(data);
+  } else {
+    target[index] = data;
+  }
 }
 
 function isObject(something: any): boolean {

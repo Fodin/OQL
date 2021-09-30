@@ -52,7 +52,7 @@ These approaches of choosing properties and elements can be combined to access a
 ### Usage
 `import { oql } from 'oql-lib';`
 
-####Set property of object
+#### Set property of object
 
 `result = oql(["set first.second", 2], { first: { second: 0}})`
 
@@ -61,3 +61,4 @@ These approaches of choosing properties and elements can be combined to access a
 ### History of changes
 
 v1.1.0 - implemented **set** method
+v1.2.0 - implemented **add** method
