@@ -60,4 +60,4 @@ These approaches of choosing properties and elements can be combined to access a
 
 ### History of changes
 
-v1.0.0 - implemented **set** method
+v1.1.0 - implemented **set** method
