@@ -76,4 +76,5 @@ result = oql(["set first.second", 2], { first: { second: 0}})
 ### History of changes
 
 v1.1.0 - implemented **set** method
+
 v1.2.0 - implemented **add** method
