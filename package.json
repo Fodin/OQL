@@ -1,0 +1,31 @@
+{
+  "name": "oql-lib",
+  "version": "1.0.0",
+  "description": "Library for manipulations with object data",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "oql",
+    "object",
+    "manipulate",
+    "query",
+    "string"
+  ],
+  "author": "Fedor Odintsov",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "jest": "^27.2.2",
+    "nodemon": "^2.0.13",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.5",
+    "ts-node": "^10.2.1"
+  }
+}
