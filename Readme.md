@@ -56,9 +56,12 @@ These approaches of choosing properties and elements can be combined to access a
 
 `result = oql(["set first.second", 2], { first: { second: 0}})`
 
-`result` will be { first: { second: 2}}
+`result` will be `{ first: { second: 2}}`
 
 ### History of changes
 
 v1.1.0 - implemented **set** method
+
 v1.2.0 - implemented **add** method
+
+v1.2.1 - fix bundle

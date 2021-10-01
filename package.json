@@ -1,6 +1,6 @@
 {
   "name": "oql-lib",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Library for manipulations with object data",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,8 +16,14 @@
     "object",
     "manipulate",
     "query",
-    "string"
+    "string",
+    "nested",
+    "properties"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fodin/OQL"
+  },
   "author": "Fedor Odintsov",
   "license": "ISC",
   "devDependencies": {
