@@ -24,16 +24,16 @@ function processQuery(query: Query, target: {}): void {
   const [command, data] = query;
   const [method, path] = command.split(' ');
 
-  if (!['set', 'add'].includes(method)) {
-    throw Error('Invalid method. Method must be "set" or "add"');
+  if (!['set', 'add', 'del'].includes(method)) {
+    throw Error('Invalid method. Method must be "set", "add" or "del"');
   }
 
   let propsNames = path.split('.');
   let currentObject: { [index: string]: any } = target; // currentObject is always copy of source
 
   propsNames.forEach((prop, index) => {
-    if (index === propsNames.length - 1) {
-      // If the prop is last in path
+    const isLastProperty = index === propsNames.length - 1;
+    if (isLastProperty) { // If the prop is last in path
       if (prop.includes('=')) {
         // Property is search expression
         if (isArray(currentObject)) {
@@ -44,8 +44,10 @@ function processQuery(query: Query, target: {}): void {
           if (~foundIndex) {
             if (method === 'set') {
               currentObject[foundIndex] = data;
-            } else {
+            } else if (method === 'add') {
               addDelta(currentObject, foundIndex, data);
+            } else {
+              deleteElement(currentObject, foundIndex);
             }
           } else {
             throw Error(`Prop or value ${prop} hasn't been found`);
@@ -58,15 +60,19 @@ function processQuery(query: Query, target: {}): void {
           // Negative index of array
           if (method === 'set') {
             currentObject[currentObject.length + parseInt(prop)] = data;
-          } else {
+          } else if (method === 'add') {
             addDelta(currentObject, currentObject.length + parseInt(prop), data);
+          } else {
+            deleteElement(currentObject, currentObject.length + parseInt(prop));
           }
         } else {
           // Ordinary object
           if (method === 'set') {
             currentObject[prop] = data;
-          } else {
+          } else if (method === 'add') {
             addDelta(currentObject, prop, data);
+          } else {
+            deleteElement(currentObject, prop);
           }
         }
       }
@@ -116,6 +122,15 @@ function addDelta(target: { [index: string]: any }, index: string, data: any): a
     target[index] = data;
   }
 }
+
+function deleteElement(target: { [index: string]: any }, index: string): void {
+  if (Array.isArray(target)) {
+    target.splice(parseInt(index), 1);
+  } else {
+    delete target[index];
+  }
+}
+
 
 function isObject(something: any): boolean {
   return Object.prototype.toString.call(something) === '[object Object]';

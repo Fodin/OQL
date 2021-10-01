@@ -117,9 +117,55 @@ describe('Add tests', () => {
     ).toStrictEqual({ first: [{ id: 'abc', odin: 1 }, { id: 'bcd' }] });
   });
 
-  test('Test add property by negative', () => {
+  test('Test add property by negative index', () => {
     expect(
       oql(['add first.-2', { odin: 1 }], { first: [{ id: 'abc' }, { id: 'bcd' }] }),
     ).toStrictEqual({ first: [{ id: 'abc', odin: 1 }, { id: 'bcd' }] });
+  });
+});
+
+describe('Delete tests', () => {
+  test('Test delete object property', () => {
+    expect(oql(['del first', 0], { first: 0 })).toStrictEqual({});
+  });
+
+  test('Test delete nested object property', () => {
+    expect(oql(['del first.odin', 0], { first: { odin: 1 }, second: [1, 2] })).toStrictEqual({
+      first: {},
+      second: [1, 2],
+    });
+  });
+
+  // TODO: Этот тест вызывает бэктрэйс. Добавить проверку на существование промежуточного свойства
+  // test('Test delete array element by index', () => {
+  //   expect(oql(['del first.second.1', 0], { first: { odin: 1 }, second: [1, 2] })).toStrictEqual({
+  //     first: { odin: 1 },
+  //     second: [1],
+  //   });
+  // });
+
+  test('Test delete array element by index', () => {
+    expect(oql(['del second.1', 0], { first: { odin: 1 }, second: [1, 2] })).toStrictEqual({
+      first: { odin: 1 },
+      second: [1],
+    });
+  });
+
+  test('Test delete array element by negative index', () => {
+    expect(
+      oql(['del second.-2', 0], { first: { odin: 1 }, second: [1, 2, 3] }),
+    ).toStrictEqual({ first: { odin: 1 }, second: [1, 3] });
+  });
+
+  test('Test delete array element by name', () => {
+    expect(
+      oql(['del first.id=bcd', 0], { first: [{id:'abc', value: 1}, {id:'bcd', value: 2}, {id:'cde', value: 3}] }),
+    ).toStrictEqual({ first: [{id:'abc', value: 1}, {id:'cde', value: 3}] });
+  });
+
+  test('Test delete array element by name not found', () => {
+    expect(()=>
+      {oql(['del first.id=aaa', 0], { first: [{id:'abc', value: 1}, {id:'bcd', value: 2}, {id:'cde', value: 3}] })}
+    ).toThrowError("Prop or value id=aaa hasn't been found");
   });
 });

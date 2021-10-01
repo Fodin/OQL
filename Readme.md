@@ -55,6 +55,8 @@ These approaches of choosing properties and elements can be combined to access a
 
 **Add** - merge data in the point chosen by `path` with new data.
 
+**Del** - delete array or object element in the point chosen by `path` with new data.
+
 ### Install
 ```bash
 npm install -S oql-lib
@@ -80,3 +82,5 @@ v1.1.0 - implemented **set** method
 v1.2.0 - implemented **add** method
 
 v1.2.1 - fix bundle
+
+v1.3.0 - implemented **del** method
