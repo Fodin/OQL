@@ -1,10 +1,30 @@
 import { oql } from '../src';
 
-describe('Set tests', () => {
+describe('General tests', () => {
   test('Test for empty arguments', () => {
     expect(oql([], { test: '2' })).toStrictEqual({ test: '2' });
   });
 
+  test('Test for non-object argument', () => {
+    expect(() => {
+      oql(['add first.id=abc', 1], 'Not object');
+    }).toThrowError('Target must be object or array');
+  });
+
+  test('Test for wrong method', () => {
+    expect(() => {
+      oql(['evaluate first', 1], {first:1});
+    }).toThrowError('Invalid method. Method must be "set", "add" or "del"');
+  });
+
+  test('Test for search not in array', () => {
+    expect(() => {
+      oql(['set first.id=abc', 1], {first:{}});
+    }).toThrowError(`Trying to search 'first.id=abc' not in array!`);
+  });
+});
+
+describe('Set tests', () => {
   test('Test set primitive to property', () => {
     expect(oql(['set first', 1], { first: 0 })).toStrictEqual({ first: 1 });
   });
@@ -122,6 +142,12 @@ describe('Add tests', () => {
       oql(['add first.-2', { odin: 1 }], { first: [{ id: 'abc' }, { id: 'bcd' }] }),
     ).toStrictEqual({ first: [{ id: 'abc', odin: 1 }, { id: 'bcd' }] });
   });
+
+  test('Test add element to array', () => {
+    expect(
+      oql(['add first', { id: 'cde' }], { first: [{ id: 'abc' }, { id: 'bcd' }] }),
+    ).toStrictEqual({ first: [{ id: 'abc'}, { id: 'bcd' }, { id: 'cde' }] });
+  });
 });
 
 describe('Delete tests', () => {
@@ -152,20 +178,38 @@ describe('Delete tests', () => {
   });
 
   test('Test delete array element by negative index', () => {
-    expect(
-      oql(['del second.-2', 0], { first: { odin: 1 }, second: [1, 2, 3] }),
-    ).toStrictEqual({ first: { odin: 1 }, second: [1, 3] });
+    expect(oql(['del second.-2', 0], { first: { odin: 1 }, second: [1, 2, 3] })).toStrictEqual({
+      first: { odin: 1 },
+      second: [1, 3],
+    });
   });
 
   test('Test delete array element by name', () => {
     expect(
-      oql(['del first.id=bcd', 0], { first: [{id:'abc', value: 1}, {id:'bcd', value: 2}, {id:'cde', value: 3}] }),
-    ).toStrictEqual({ first: [{id:'abc', value: 1}, {id:'cde', value: 3}] });
+      oql(['del first.id=bcd', 0], {
+        first: [
+          { id: 'abc', value: 1 },
+          { id: 'bcd', value: 2 },
+          { id: 'cde', value: 3 },
+        ],
+      }),
+    ).toStrictEqual({
+      first: [
+        { id: 'abc', value: 1 },
+        { id: 'cde', value: 3 },
+      ],
+    });
   });
 
   test('Test delete array element by name not found', () => {
-    expect(()=>
-      {oql(['del first.id=aaa', 0], { first: [{id:'abc', value: 1}, {id:'bcd', value: 2}, {id:'cde', value: 3}] })}
-    ).toThrowError("Prop or value id=aaa hasn't been found");
+    expect(() => {
+      oql(['del first.id=aaa', 0], {
+        first: [
+          { id: 'abc', value: 1 },
+          { id: 'bcd', value: 2 },
+          { id: 'cde', value: 3 },
+        ],
+      });
+    }).toThrowError("Prop or value id=aaa hasn't been found");
   });
 });

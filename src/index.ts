@@ -24,82 +24,50 @@ function processQuery(query: Query, target: {}): void {
   const [command, data] = query;
   const [method, path] = command.split(' ');
 
-  if (!['set', 'add', 'del'].includes(method)) {
-    throw Error('Invalid method. Method must be "set", "add" or "del"');
-  }
-
   let propsNames = path.split('.');
   let currentObject: { [index: string]: any } = target; // currentObject is always copy of source
 
   propsNames.forEach((prop, index) => {
-    const isLastProperty = index === propsNames.length - 1;
-    if (isLastProperty) { // If the prop is last in path
-      if (prop.includes('=')) {
-        // Property is search expression
-        if (isArray(currentObject)) {
-          const [id, value] = prop.split('=');
-          const foundIndex = currentObject.findIndex(
-            (el: { id: string }) => isObject(el) && id in el && el.id === value,
-          );
-          if (~foundIndex) {
-            if (method === 'set') {
-              currentObject[foundIndex] = data;
-            } else if (method === 'add') {
-              addDelta(currentObject, foundIndex, data);
-            } else {
-              deleteElement(currentObject, foundIndex);
-            }
-          } else {
-            throw Error(`Prop or value ${prop} hasn't been found`);
-          }
+    let realProp = prop;
+    if (prop.includes('=')) {
+      // Property is search expression
+      if (isArray(currentObject)) {
+        const [id, value] = prop.split('=');
+        const foundIndex = currentObject.findIndex(
+          (el: { id: string }) => isObject(el) && id in el && el.id === value,
+        );
+        if (~foundIndex) {
+          realProp = foundIndex;
         } else {
-          throw Error('Current prop is not array!'); // TODO: Print which prop is bad
+          throw Error(`Prop or value ${prop} hasn't been found`);
         }
       } else {
-        if (isArray(currentObject) && parseInt(prop) < 0) {
-          // Negative index of array
-          if (method === 'set') {
-            currentObject[currentObject.length + parseInt(prop)] = data;
-          } else if (method === 'add') {
-            addDelta(currentObject, currentObject.length + parseInt(prop), data);
-          } else {
-            deleteElement(currentObject, currentObject.length + parseInt(prop));
-          }
-        } else {
-          // Ordinary object
-          if (method === 'set') {
-            currentObject[prop] = data;
-          } else if (method === 'add') {
-            addDelta(currentObject, prop, data);
-          } else {
-            deleteElement(currentObject, prop);
-          }
-        }
+        throw Error(`Trying to search '${path.split(prop)[0] + prop}' not in array!`);
       }
     } else {
-      if (prop.includes('=')) {
-        // Property is search expression
-        if (isArray(currentObject)) {
-          const [id, value] = prop.split('=');
-          const foundIndex = currentObject.findIndex(
-            (el: { id: string }) => isObject(el) && id in el && el.id === value,
-          );
-          if (~foundIndex) {
-            currentObject = setDelta(currentObject, foundIndex);
-          } else {
-            throw Error(`Prop or value ${prop} hasn't been found`);
-          }
-        } else {
-          throw Error('Current prop is not array!'); // TODO: Print which prop is bad
-        }
-      } else {
-        if (isArray(currentObject) && parseInt(prop) < 0) {
-          // Negative index of array
-          currentObject = setDelta(currentObject, currentObject.length + parseInt(prop));
-        } else {
-          currentObject = setDelta(currentObject, prop);
-        }
+      if (isArray(currentObject) && parseInt(prop) < 0) {
+        // Negative index of array
+        realProp = currentObject.length + parseInt(prop);
       }
+    }
+
+    const isLastProperty = index === propsNames.length - 1;
+    if (isLastProperty) {
+      switch (method) {
+        case 'set':
+          currentObject[realProp] = data;
+          break;
+        case 'add':
+          addDelta(currentObject, realProp, data);
+          break;
+        case 'del':
+          deleteElement(currentObject, realProp);
+          break;
+        default:
+          throw Error('Invalid method. Method must be "set", "add" or "del"');
+      }
+    } else {
+      currentObject = setDelta(currentObject, realProp);
     }
   });
 }
@@ -130,7 +98,6 @@ function deleteElement(target: { [index: string]: any }, index: string): void {
     delete target[index];
   }
 }
-
 
 function isObject(something: any): boolean {
   return Object.prototype.toString.call(something) === '[object Object]';
